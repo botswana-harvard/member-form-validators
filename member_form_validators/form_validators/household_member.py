@@ -3,11 +3,9 @@ from django import forms
 from edc_base.modelform_validators import FormValidator
 from edc_base.utils import get_utcnow
 from edc_constants.constants import YES, FEMALE, MALE, ALIVE, UNKNOWN
-
 from household.constants import REFUSED_ENUMERATION
 from household.exceptions import HouseholdLogRequired
 from household.models import todays_log_entry_or_raise
-
 from member.choices import RELATIONS, FEMALE_RELATIONS, MALE_RELATIONS
 from member.constants import HEAD_OF_HOUSEHOLD
 from member.models import HouseholdMember, DeceasedMember

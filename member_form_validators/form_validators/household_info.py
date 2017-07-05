@@ -1,7 +1,6 @@
 from django import forms
 
 from edc_base.modelform_validators import FormValidator
-
 from member.models import RepresentativeEligibility
 
 

@@ -100,9 +100,11 @@ class HouseholdMemberFormValidator(FormValidator):
 
         if 'personal_details_changed' in self.cleaned_data:
             self.applicable_if(
-                ALIVE, field='survival_status', field_applicable='personal_details_changed')
+                ALIVE, field='survival_status',
+                field_applicable='personal_details_changed')
             self.required_if(
-                YES, field='personal_details_changed', field_required='details_change_reason')
+                YES, field='personal_details_changed',
+                field_required='details_change_reason')
         return self.cleaned_data
 
     def validate_member_integrity_with_previous(self):

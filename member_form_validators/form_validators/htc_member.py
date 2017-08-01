@@ -10,4 +10,3 @@ class HtcMemberFormValidator(FormValidator):
         self.applicable_if(YES, field='offered', field_applicable='referred')
         self.required_if(
             YES, field='referred', field_required='referral_clinic')
-        return self.cleaned_data

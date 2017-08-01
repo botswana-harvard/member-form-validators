@@ -1,23 +1,25 @@
 from django import forms
-
+from django.apps import apps as django_apps
 from edc_base.modelform_validators import FormValidator
-from member.models import RepresentativeEligibility
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class HouseholdInfoFormValidator(FormValidator):
 
-    def clean(self):
+    representative_eligibility_model = 'member.representativeeligibility'
 
+    def clean(self):
+        representative_eligibility_model_cls = django_apps.get_model(
+            self.representative_eligibility_model)
         try:
-            RepresentativeEligibility.objects.get(
+            representative_eligibility_model_cls.objects.get(
                 household_structure=self.cleaned_data.get('household_structure'))
-        except RepresentativeEligibility.DoesNotExist:
+        except ObjectDoesNotExist:
+            verbose_name = representative_eligibility_model_cls._meta.verbose_name
             raise forms.ValidationError(
-                f'Please complete the {RepresentativeEligibility._meta.verbose_name} '
-                f'form first.')
+                f'Please complete {verbose_name} first.')
 
         self.validate_other_specify('flooring_type')
         self.validate_other_specify('water_source')
         self.validate_other_specify('energy_source')
         self.validate_other_specify('toilet_facility')
-        return self.cleaned_data

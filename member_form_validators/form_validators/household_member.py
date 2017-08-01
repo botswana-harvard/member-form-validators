@@ -1,17 +1,21 @@
 from django import forms
+from django.apps import apps as django_apps
 
 from edc_base.modelform_validators import FormValidator
 from edc_base.utils import get_utcnow
 from edc_constants.constants import YES, FEMALE, MALE, ALIVE, UNKNOWN
 from household.constants import REFUSED_ENUMERATION
 from household.exceptions import HouseholdLogRequired
-from household.models import todays_log_entry_or_raise
+from household.utils import todays_log_entry_or_raise
 from member.choices import RELATIONS, FEMALE_RELATIONS, MALE_RELATIONS
 from member.constants import HEAD_OF_HOUSEHOLD
-from member.models import HouseholdMember, DeceasedMember
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class HouseholdMemberFormValidator(FormValidator):
+
+    household_member_model = 'member.householdmember'
+    deceased_member_model = 'member.deceasedmember'
 
     def __init__(self, today_datetime=None, **kwargs):
         super().__init__(**kwargs)
@@ -33,6 +37,10 @@ class HouseholdMemberFormValidator(FormValidator):
             self.report_datetime = today_datetime or self.instance.report_datetime
 
     def clean(self):
+        self.household_member_model_cls = django_apps.get_model(
+            self.household_member_model)
+        self.deceased_member_model_cls = django_apps.get_model(
+            self.deceased_member_model)
 
         # validate cannot change if enrollment_checklist_completed
         if self.instance.id and self.instance.enrollment_checklist_completed:
@@ -80,9 +88,9 @@ class HouseholdMemberFormValidator(FormValidator):
 
         if self.survival_status in [ALIVE, UNKNOWN]:
             try:
-                obj = DeceasedMember.objects.get(
+                obj = self.deceased_member_model_cls.objects.get(
                     household_member=self.instance)
-            except DeceasedMember.DoesNotExist:
+            except ObjectDoesNotExist:
                 pass
             else:
                 aware_date = obj.site_aware_date.strftime('%Y-%m-%d')
@@ -105,7 +113,6 @@ class HouseholdMemberFormValidator(FormValidator):
             self.required_if(
                 YES, field='personal_details_changed',
                 field_required='details_change_reason')
-        return self.cleaned_data
 
     def validate_member_integrity_with_previous(self):
         """Validates that this is not an attempt to ADD a member that
@@ -115,11 +122,11 @@ class HouseholdMemberFormValidator(FormValidator):
             while self.household_structure.previous:
                 household_structure = self.household_structure.previous
                 try:
-                    HouseholdMember.objects.get(
+                    self.household_member_model_cls.objects.get(
                         household_structure=household_structure,
                         first_name=self.first_name,
                         initials=self.initials)
-                except HouseholdMember.DoesNotExist:
+                except ObjectDoesNotExist:
                     pass
                 else:
                     raise forms.ValidationError(

@@ -119,15 +119,17 @@ class HouseholdMemberFormValidator(FormValidator):
         already exists in a previous survey.
         """
         if not self.instance.id:
-            while self.household_structure.previous:
-                household_structure = self.household_structure.previous
+            household_structure = self.household_structure
+            while household_structure:
+                household_structure = household_structure.previous
+                print(household_structure)
                 try:
                     self.household_member_model_cls.objects.get(
                         household_structure=household_structure,
                         first_name=self.first_name,
                         initials=self.initials)
                 except ObjectDoesNotExist:
-                    break
+                    pass
                 else:
                     raise forms.ValidationError(
                         f'{self.first_name} with initials {self.initials} was '

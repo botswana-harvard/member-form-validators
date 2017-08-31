@@ -127,7 +127,7 @@ class HouseholdMemberFormValidator(FormValidator):
                         first_name=self.first_name,
                         initials=self.initials)
                 except ObjectDoesNotExist:
-                    pass
+                    break
                 else:
                     raise forms.ValidationError(
                         f'{self.first_name} with initials {self.initials} was '

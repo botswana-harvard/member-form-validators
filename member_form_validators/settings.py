@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'edc_base.apps.AppConfig',
     'edc_device.apps.AppConfig',
     'edc_identifier.apps.AppConfig',
+    'edc_registration.apps.AppConfig',
     'edc_protocol.apps.AppConfig',
     'survey.apps.AppConfig',
     'plot.apps.AppConfig',
@@ -139,6 +140,7 @@ LOAD_SURVEYS = 'manual'  # 'manual' or 'autodetect' (default)
 if 'test' in sys.argv:
 
     class DisableMigrations:
+
         def __contains__(self, item):
             return True
 

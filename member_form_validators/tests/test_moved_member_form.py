@@ -1,13 +1,16 @@
-from django.apps import apps as django_apps
-from django import forms
-from django.test import TestCase
-
-from edc_constants.constants import YES, NO
-from edc_map.site_mappers import site_mappers
 from member.forms import MovedMemberForm
 from member.tests import MemberTestHelper
 from member.tests import TestMapper
+
+from django import forms
+from django.apps import apps as django_apps
+from django.core.exceptions import ValidationError
+from django.test import TestCase
+from django.test.utils import tag
+from edc_constants.constants import YES, NO
 from survey.tests import SurveyTestHelper
+
+from edc_map.site_mappers import site_mappers
 
 from ..form_validators.moved_member import MovedMemberFormValidator
 
@@ -43,3 +46,25 @@ class TestMovedMemberFormValidator(TestCase):
             cleaned_data=cleaned_data,
             instance=self.household_member)
         self.assertRaises(forms.ValidationError, form_validator.validate)
+
+    def test_moved_community_with_new_community(self):
+        cleaned_data = dict(
+            has_moved=YES,
+            update_locator=YES,
+            moved_community=YES,
+            new_community=None)
+        form_validator = MovedMemberFormValidator(
+            cleaned_data=cleaned_data, instance=self.household_member)
+        self.assertRaises(forms.ValidationError, form_validator.validate)
+        self.assertIn('new_community', form_validator._errors)
+
+    def test_moved_household_none_moved_community(self):
+        cleaned_data = dict(
+            has_moved=YES,
+            update_locator=YES,
+            moved_household=YES,
+            moved_community=None)
+        form_validator = MovedMemberFormValidator(
+            cleaned_data=cleaned_data, instance=self.household_member)
+        self.assertRaises(forms.ValidationError, form_validator.validate)
+        self.assertIn('moved_community', form_validator._errors)

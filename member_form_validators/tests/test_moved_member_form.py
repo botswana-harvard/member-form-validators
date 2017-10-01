@@ -4,9 +4,7 @@ from member.tests import TestMapper
 
 from django import forms
 from django.apps import apps as django_apps
-from django.core.exceptions import ValidationError
 from django.test import TestCase
-from django.test.utils import tag
 from edc_constants.constants import YES, NO
 from survey.tests import SurveyTestHelper
 
@@ -58,13 +56,82 @@ class TestMovedMemberFormValidator(TestCase):
         self.assertRaises(forms.ValidationError, form_validator.validate)
         self.assertIn('new_community', form_validator._errors)
 
-    def test_moved_household_none_moved_community(self):
+    def test_has_moved_na_details_change_reason(self):
         cleaned_data = dict(
             has_moved=YES,
             update_locator=YES,
-            moved_household=YES,
-            moved_community=None)
+            details_change_reason='married')
         form_validator = MovedMemberFormValidator(
             cleaned_data=cleaned_data, instance=self.household_member)
         self.assertRaises(forms.ValidationError, form_validator.validate)
-        self.assertIn('moved_community', form_validator._errors)
+        self.assertIn('details_change_reason', form_validator._errors)
+
+    def test_has_moved_na_inability_to_participate(self):
+        cleaned_data = dict(
+            has_moved=YES,
+            update_locator=YES,
+            inability_to_participate='ABLE to participate')
+        form_validator = MovedMemberFormValidator(
+            cleaned_data=cleaned_data, instance=self.household_member)
+        self.assertRaises(forms.ValidationError, form_validator.validate)
+        self.assertIn('inability_to_participate', form_validator._errors)
+
+    def test_has_moved_na_study_resident(self):
+        cleaned_data = dict(
+            has_moved=YES,
+            update_locator=YES,
+            study_resident=YES)
+        form_validator = MovedMemberFormValidator(
+            cleaned_data=cleaned_data, instance=self.household_member)
+        self.assertRaises(forms.ValidationError, form_validator.validate)
+        self.assertIn('study_resident', form_validator._errors)
+
+    def test_has_moved_na_personal_details_changed(self):
+        cleaned_data = dict(
+            has_moved=YES,
+            update_locator=YES,
+            personal_details_changed=YES)
+        form_validator = MovedMemberFormValidator(
+            cleaned_data=cleaned_data, instance=self.household_member)
+        self.assertRaises(forms.ValidationError, form_validator.validate)
+        self.assertIn('personal_details_changed', form_validator._errors)
+
+    def test_present_today_na_details_change_reason(self):
+        cleaned_data = dict(
+            present_today=NO,
+            update_locator=YES,
+            details_change_reason='married')
+        form_validator = MovedMemberFormValidator(
+            cleaned_data=cleaned_data, instance=self.household_member)
+        self.assertRaises(forms.ValidationError, form_validator.validate)
+        self.assertIn('details_change_reason', form_validator._errors)
+
+    def test_present_today_na_inability_to_participate(self):
+        cleaned_data = dict(
+            present_today=NO,
+            update_locator=YES,
+            inability_to_participate='ABLE to participate')
+        form_validator = MovedMemberFormValidator(
+            cleaned_data=cleaned_data, instance=self.household_member)
+        self.assertRaises(forms.ValidationError, form_validator.validate)
+        self.assertIn('inability_to_participate', form_validator._errors)
+
+    def test_present_today_na_study_resident(self):
+        cleaned_data = dict(
+            present_today=NO,
+            update_locator=YES,
+            study_resident=YES)
+        form_validator = MovedMemberFormValidator(
+            cleaned_data=cleaned_data, instance=self.household_member)
+        self.assertRaises(forms.ValidationError, form_validator.validate)
+        self.assertIn('study_resident', form_validator._errors)
+
+    def test_present_today_na_personal_details_changed(self):
+        cleaned_data = dict(
+            present_today=NO,
+            update_locator=YES,
+            personal_details_changed=YES)
+        form_validator = MovedMemberFormValidator(
+            cleaned_data=cleaned_data, instance=self.household_member)
+        self.assertRaises(forms.ValidationError, form_validator.validate)
+        self.assertIn('personal_details_changed', form_validator._errors)

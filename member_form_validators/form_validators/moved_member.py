@@ -13,10 +13,35 @@ class MovedMemberFormValidator(FormValidator):
             field='moved_community',
             field_required='new_community')
 
-        self.required_if(
+        self.not_applicable_if(
             YES,
-            field='moved_household',
-            field_required='moved_community')
+            field='has_moved',
+            field_applicable='details_change_reason'
+        )
+
+        self.not_applicable_if(
+            YES,
+            field='has_moved',
+            field_applicable='inability_to_participate'
+        )
+
+        self.not_applicable_if(
+            YES,
+            field='has_moved',
+            field_applicable='study_resident'
+        )
+
+        self.not_applicable_if(
+            YES,
+            field='has_moved',
+            field_applicable='personal_details_changed'
+        )
+
+        self.not_applicable_if(
+            YES,
+            field='has_moved',
+            field_applicable='personal_details_changed'
+        )
 
         if self.instance.id and self.instance.has_moved not in [YES]:
             raise forms.ValidationError(

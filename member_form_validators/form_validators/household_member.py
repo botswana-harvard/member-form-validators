@@ -1,15 +1,15 @@
-from django import forms
-from django.apps import apps as django_apps
-
-from edc_base.modelform_validators import FormValidator
-from edc_base.utils import get_utcnow
-from edc_constants.constants import YES, FEMALE, MALE, ALIVE, UNKNOWN
 from household.constants import REFUSED_ENUMERATION
 from household.exceptions import HouseholdLogRequired
-from household.utils import todays_log_entry_or_raise
 from member.choices import RELATIONS, FEMALE_RELATIONS, MALE_RELATIONS
 from member.constants import HEAD_OF_HOUSEHOLD
+
+from django import forms
+from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
+from edc_base.modelform_validators import FormValidator
+from edc_base.utils import get_utcnow
+from edc_constants.constants import YES, FEMALE, MALE, ALIVE, UNKNOWN, NO
+from household.utils import todays_log_entry_or_raise
 
 
 class HouseholdMemberFormValidator(FormValidator):
@@ -97,22 +97,27 @@ class HouseholdMemberFormValidator(FormValidator):
                 raise forms.ValidationError({
                     'survival_status': f'Member was reported as deceased on {aware_date}'})
 
-        self.applicable_if(
-            ALIVE, field='survival_status', field_applicable='present_today')
-        self.applicable_if(
-            ALIVE, field='survival_status', field_applicable='inability_to_participate')
-        self.applicable_if(
-            ALIVE, field='survival_status', field_applicable='study_resident')
-        self.applicable_if(
-            ALIVE, field='survival_status', field_applicable='relation')
+        self.not_applicable_if(
+            NO,
+            field='present_today',
+            field_applicable='inability_to_participate'
+        )
 
-        if 'personal_details_changed' in self.cleaned_data:
-            self.applicable_if(
-                ALIVE, field='survival_status',
-                field_applicable='personal_details_changed')
-            self.required_if(
-                YES, field='personal_details_changed',
-                field_required='details_change_reason')
+        self.not_applicable_if(
+            NO,
+            field='present_today',
+            field_applicable='study_resident'
+        )
+
+        self.not_applicable_if(
+            NO,
+            field='present_today',
+            field_applicable='personal_details_changed'
+        )
+
+        self.required_if(
+            YES, field='personal_details_changed',
+            field_required='details_change_reason')
 
     def validate_member_integrity_with_previous(self):
         """Validates that this is not an attempt to ADD a member that

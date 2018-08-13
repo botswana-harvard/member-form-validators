@@ -96,23 +96,19 @@ class HouseholdMemberFormValidator(FormValidator):
                 aware_date = obj.site_aware_date.strftime('%Y-%m-%d')
                 raise forms.ValidationError({
                     'survival_status': f'Member was reported as deceased on {aware_date}'})
+        
+        
+        moved_list = ['inability_to_participate', 'study_resident', 'personal_details_changed']
+        
+        
+        for opt in moved_list:
+            condition = self.cleaned_data.get('has_moved') != YES and self.cleaned_data.get('present_today') != NO
+            self.applicable_if_true(condition, opt)
 
         self.not_applicable_if(
-            NO,
-            field='present_today',
-            field_applicable='inability_to_participate'
-        )
-
-        self.not_applicable_if(
-            NO,
-            field='present_today',
-            field_applicable='study_resident'
-        )
-
-        self.not_applicable_if(
-            NO,
-            field='present_today',
-            field_applicable='personal_details_changed'
+            YES,
+            field='has_moved',
+            field_applicable='present_today'
         )
 
         self.required_if(

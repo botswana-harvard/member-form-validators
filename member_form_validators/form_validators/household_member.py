@@ -97,28 +97,29 @@ class HouseholdMemberFormValidator(FormValidator):
                 raise forms.ValidationError({
                     'survival_status': f'Member was reported as deceased on {aware_date}'})
         
-        
+        self.applicable_if(
+            NO,
+            field='has_moved',
+            field_applicable='present_today')
+
+        self.applicable_if(
+            ALIVE,
+            field='survival_status',
+            field_applicable='present_today'
+        )
 
         moved_list = ['inability_to_participate', 'study_resident', 'personal_details_changed', 'relation']
         
         for opt in moved_list:
-            condition = self.cleaned_data.get('has_moved') != YES and self.cleaned_data.get('present_today') != NO
-            self.applicable_if_true(condition, opt)
-
-        self.not_applicable_if(
-            YES,
-            field='has_moved',
-            field_applicable='present_today'
-        )
+            self.applicable_if(
+                YES,
+                field='present_today',
+                field_applicable=opt)
 
         self.required_if(
-            YES, field='personal_details_changed',
+            YES,
+            field='personal_details_changed',
             field_required='details_change_reason')
-        
-        self.not_applicable_if(
-            DEAD,
-            field='survival_status',
-            field_applicable='present_today')
 
     def validate_member_integrity_with_previous(self):
         """Validates that this is not an attempt to ADD a member that

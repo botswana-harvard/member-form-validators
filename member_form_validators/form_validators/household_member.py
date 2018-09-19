@@ -8,7 +8,7 @@ from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from edc_base.modelform_validators import FormValidator
 from edc_base.utils import get_utcnow
-from edc_constants.constants import YES, FEMALE, MALE, ALIVE, UNKNOWN, NO
+from edc_constants.constants import YES, FEMALE, MALE, ALIVE, UNKNOWN, NO, DEAD
 from household.utils import todays_log_entry_or_raise
 
 
@@ -98,8 +98,8 @@ class HouseholdMemberFormValidator(FormValidator):
                     'survival_status': f'Member was reported as deceased on {aware_date}'})
         
         
-        moved_list = ['inability_to_participate', 'study_resident', 'personal_details_changed']
-        
+
+        moved_list = ['inability_to_participate', 'study_resident', 'personal_details_changed', 'relation']
         
         for opt in moved_list:
             condition = self.cleaned_data.get('has_moved') != YES and self.cleaned_data.get('present_today') != NO
@@ -114,6 +114,11 @@ class HouseholdMemberFormValidator(FormValidator):
         self.required_if(
             YES, field='personal_details_changed',
             field_required='details_change_reason')
+        
+        self.not_applicable_if(
+            DEAD,
+            field='survival_status',
+            field_applicable='present_today')
 
     def validate_member_integrity_with_previous(self):
         """Validates that this is not an attempt to ADD a member that

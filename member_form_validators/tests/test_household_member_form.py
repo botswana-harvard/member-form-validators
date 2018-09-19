@@ -17,7 +17,6 @@ from survey.tests import SurveyTestHelper
 from ..form_validators import HouseholdMemberFormValidator
 
 
-@tag('form')
 class TestHouseholdMemberFormValidator(TestCase):
 
     member_helper = MemberTestHelper()
@@ -39,7 +38,6 @@ class TestHouseholdMemberFormValidator(TestCase):
 
     def test_form_validator_log_entry(self):
         """Asserts raises on missing log entry for now.
-
         Note, for tests today is set in the past, see member_helper.get_utcnow.
         """
         cleaned_data = dict(household_structure=self.household_structure)
@@ -234,7 +232,6 @@ class TestHouseholdMemberFormValidator(TestCase):
         self.assertRaises(forms.ValidationError, form_validator.validate)
         self.assertIn('details_change_reason', form_validator._errors)
 
-    @tag('1')
     def test_household_member_moved1(self):
         defaults = dict(
             household_structure=self.household_structure,
@@ -251,8 +248,7 @@ class TestHouseholdMemberFormValidator(TestCase):
             instance=HouseholdMember())
         self.assertRaises(forms.ValidationError, form_validator.validate)
         self.assertIn('present_today', form_validator._errors)
-        
-    @tag('1')
+
     def test_household_member_moved2(self):
         defaults = dict(
             household_structure=self.household_structure,
@@ -269,8 +265,7 @@ class TestHouseholdMemberFormValidator(TestCase):
             instance=HouseholdMember())
         self.assertRaises(forms.ValidationError, form_validator.validate)
         self.assertIn('inability_to_participate', form_validator._errors)
-    
-    @tag('1')
+
     def test_household_member_moved3(self):
         defaults = dict(
             household_structure=self.household_structure,
@@ -287,8 +282,7 @@ class TestHouseholdMemberFormValidator(TestCase):
             instance=HouseholdMember())
         self.assertRaises(forms.ValidationError, form_validator.validate)
         self.assertIn('study_resident', form_validator._errors)
-        
-    @tag('1')
+
     def test_household_member_moved4(self):
         defaults = dict(
             household_structure=self.household_structure,
@@ -305,7 +299,7 @@ class TestHouseholdMemberFormValidator(TestCase):
             instance=HouseholdMember())
         self.assertRaises(forms.ValidationError, form_validator.validate)
         self.assertIn('personal_details_changed', form_validator._errors)
-        
+
     def test_household_member_age_in_years_and_hoh(self):
         defaults = dict(
             household_structure=self.household_structure,
@@ -353,7 +347,7 @@ class TestHouseholdMemberFormValidator(TestCase):
             instance=HouseholdMember(id=uuid4(), eligible_hoh=True))
         self.assertRaises(forms.ValidationError, form_validator.validate)
         self.assertIn('age_in_years', form_validator._errors)
-
+    
     def test_household_member_dead_but_present(self):
         defaults = dict(
             household_structure=self.household_structure,

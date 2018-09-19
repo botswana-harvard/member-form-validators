@@ -17,6 +17,7 @@ from survey.tests import SurveyTestHelper
 from ..form_validators import HouseholdMemberFormValidator
 
 
+@tag('form')
 class TestHouseholdMemberFormValidator(TestCase):
 
     member_helper = MemberTestHelper()
@@ -198,6 +199,7 @@ class TestHouseholdMemberFormValidator(TestCase):
         cleaned_data = dict(
             survival_status=ALIVE,
             present_today=YES,
+            has_moved=NO,
             inability_to_participate=ABLE_TO_PARTICIPATE,
             study_resident=YES,
             relation='husband',
@@ -222,6 +224,7 @@ class TestHouseholdMemberFormValidator(TestCase):
             inability_to_participate=ABLE_TO_PARTICIPATE,
             study_resident=YES,
             relation='husband',
+            has_moved=NO,
             personal_details_changed=YES,
             details_change_reason=None,
             ** defaults)
@@ -257,6 +260,7 @@ class TestHouseholdMemberFormValidator(TestCase):
             gender=MALE)
         cleaned_data = dict(
             has_moved=YES,
+            present_today=NOT_APPLICABLE,
             inability_to_participate=ABLE_TO_PARTICIPATE,
             ** defaults)
         form_validator = HouseholdMemberFormValidator(
@@ -266,6 +270,7 @@ class TestHouseholdMemberFormValidator(TestCase):
         self.assertRaises(forms.ValidationError, form_validator.validate)
         self.assertIn('inability_to_participate', form_validator._errors)
 
+    @tag('this')
     def test_household_member_moved3(self):
         defaults = dict(
             household_structure=self.household_structure,
@@ -274,6 +279,8 @@ class TestHouseholdMemberFormValidator(TestCase):
             gender=MALE)
         cleaned_data = dict(
             has_moved=YES,
+            present_today=NOT_APPLICABLE,
+            inability_to_participate=NOT_APPLICABLE,
             study_resident=YES,
             ** defaults)
         form_validator = HouseholdMemberFormValidator(
@@ -291,6 +298,7 @@ class TestHouseholdMemberFormValidator(TestCase):
             gender=MALE)
         cleaned_data = dict(
             has_moved=YES,
+            present_today=NOT_APPLICABLE,
             personal_details_changed=YES,
             ** defaults)
         form_validator = HouseholdMemberFormValidator(
@@ -311,7 +319,7 @@ class TestHouseholdMemberFormValidator(TestCase):
             inability_to_participate=ABLE_TO_PARTICIPATE,
             study_resident=YES,
             personal_details_changed=NO,
-            details_change_reason=None,
+            details_change_reason=NOT_APPLICABLE,
         )
         cleaned_data = dict(
             age_in_years=15,
@@ -348,18 +356,19 @@ class TestHouseholdMemberFormValidator(TestCase):
         self.assertRaises(forms.ValidationError, form_validator.validate)
         self.assertIn('age_in_years', form_validator._errors)
     
+    @tag('this')
     def test_household_member_dead_but_present(self):
         defaults = dict(
             household_structure=self.household_structure,
             first_name='ERIK',
             initials='EX',
             gender=MALE,
-            inability_to_participate=ABLE_TO_PARTICIPATE,
-            study_resident=YES,
-            personal_details_changed=NO,
+            inability_to_participate=NOT_APPLICABLE,
+            study_resident=NOT_APPLICABLE,
+            personal_details_changed=NOT_APPLICABLE,
             details_change_reason=None,
             age_in_years=18,
-            relation='husband')
+            relation=NOT_APPLICABLE)
         cleaned_data = dict(
             survival_status=DEAD,
             present_today=YES,
